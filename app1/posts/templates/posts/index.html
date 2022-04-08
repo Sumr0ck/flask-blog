@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Blueprint index page{% endblock title %}
+
+{% block title_content %} Posts {% endblock %}
+
+{% block content %}
+
+    <a href="{{ url_for('posts.create_post') }}" class="btn btn-primary btn-lg col-md-2">Create post</a>
+
+    {% for post in pages.items %}
+        <a href="{{ url_for('posts.post_detail', slug=post.slug) }}"><h2>{{ post.title }}</h2></a>
+    {% endfor %}
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item
+            {% if not pages.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="./?page={{ pages.prev_num }}">Previous</a>
+          </li>
+          {% for page in pages.iter_pages() %}
+            <li class="page-item {% if page == pages.page %} active {% endif %}">
+                <a class="page-link" href="./?page={{ page }}">{{ page }}</a>
+            </li>
+          {% endfor %}
+          <li class="page-item
+            {% if not pages.has_next %}disabled{% endif %}">
+            <a class="page-link" href="./?page={{ pages.next_num }}">Next</a>
+          </li>
+        </ul>
+      </nav>
+
+{% endblock %}
