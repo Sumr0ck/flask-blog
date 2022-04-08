@@ -1,12 +1,25 @@
-from flask import Blueprint, render_template, redirect, request, url_for
+from flask import Blueprint, flash, render_template, redirect, request, url_for
+from flask_login import current_user
 from flask_security import login_required
 
 from models import Post, Tag
-from .forms import PostForm
-from app import db
+from .forms import PostForm, RegistrationForm
+from app import db, user_datastore
 
 
 posts = Blueprint('posts', __name__, template_folder='templates')
+
+@posts.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('.index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user_datastore.create_user(email=form.email.data, password=form.password.data)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('security.login', next=request.url))
+    return render_template('posts/register.html', form=form)
 
 
 @posts.route('/create', methods=['POST', 'GET'])
