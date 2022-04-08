@@ -16,7 +16,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = user_datastore.create_user(email=form.email.data, password=form.password.data)
-        role_user = Role.query.filter(Role.name=='user').first()
+        role_user = Role.query.filter(Role.name=='user').first_or_404()
         user_datastore.add_role_to_user(user, role_user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
@@ -44,7 +44,7 @@ def create_post():
 @posts.route('/<slug>/edit/', methods=['POST', 'GET'])
 @login_required
 def edit_post(slug):
-    post = Post.query.filter(Post.slug == slug).first()
+    post = Post.query.filter(Post.slug == slug).first_or_404()
     if request.method == 'POST':
         form = PostForm(formdata=request.form, obj=post)
         form.populate_obj(post)
@@ -73,12 +73,12 @@ def index():
 
 @posts.route('/<slug>')
 def post_detail(slug):
-    post = Post.query.filter(Post.slug == slug).first()
+    post = Post.query.filter(Post.slug == slug).first_or_404()
     return render_template('posts/post-detail.html', post=post)
 
 
 @posts.route('/tag/<slug>')
 def tag_detail(slug):
-    tag = Tag.query.filter(Tag.slug == slug).first()
+    tag = Tag.query.filter(Tag.slug == slug).first_or_404()
     posts = tag.posts.all()
     return render_template('posts/tag_detail.html', posts=posts, tag=tag)
