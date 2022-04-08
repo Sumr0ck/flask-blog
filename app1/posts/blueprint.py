@@ -2,7 +2,7 @@ from flask import Blueprint, flash, render_template, redirect, request, url_for
 from flask_login import current_user
 from flask_security import login_required
 
-from models import Post, Tag
+from models import Post, Tag, Role
 from .forms import PostForm, RegistrationForm
 from app import db, user_datastore
 
@@ -15,7 +15,9 @@ def register():
         return redirect(url_for('.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user_datastore.create_user(email=form.email.data, password=form.password.data)
+        user = user_datastore.create_user(email=form.email.data, password=form.password.data)
+        role_user = Role.query.filter(Role.name=='user').first()
+        user_datastore.add_role_to_user(user, role_user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('security.login', next=request.url))
